@@ -1,0 +1,51 @@
+import java.io.*;
+import java.net.*;
+
+public class GameServer {
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(12345);
+        System.out.println("Server started...");
+
+        Socket socket1 = serverSocket.accept();
+        System.out.println("Player 1 connected...");
+        DataInputStream input1 = new DataInputStream(socket1.getInputStream());
+        DataOutputStream output1 = new DataOutputStream(socket1.getOutputStream());
+
+        Socket socket2 = serverSocket.accept();
+        System.out.println("Player 2 connected...");
+        DataInputStream input2 = new DataInputStream(socket2.getInputStream());
+        DataOutputStream output2 = new DataOutputStream(socket2.getOutputStream());
+
+        while (true) {
+            String message1 = input1.readUTF();
+            output2.writeUTF(message1);
+            output2.flush();
+
+            String message2 = input2.readUTF();
+            output1.writeUTF(message2);
+            output1.flush();
+        }
+    }
+}
+
+public class GameClient {
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 12345);
+        System.out.println("Connected to server...");
+
+        DataInputStream input = new DataInputStream(socket.getInputStream());
+        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String message;
+
+        while (true) {
+            message = reader.readLine();
+            output.writeUTF(message);
+            output.flush();
+
+            message = input.readUTF();
+            System.out.println("Opponent: " + message);
+        }
+    }
+}
